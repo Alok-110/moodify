@@ -13,12 +13,11 @@
     </div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}" class="space-y-5">
-        @csrf
+    <form method="POST" action="{{ route('login') }}" class="space-y-5" novalidate id="login-form"> @csrf
 
         <div>
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
-            <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+            <input id="email" type="text" name="email" value="{{ old('email') }}" required autofocus
                 class="w-full px-4 py-3 rounded-xl border {{ $errors->has('email') ? 'border-red-400 bg-red-50' : 'border-gray-200' }} focus:border-purple-400 focus:ring-2 focus:ring-purple-100 outline-none text-sm transition"
                 placeholder="you@example.com">
         </div>
@@ -53,11 +52,48 @@
             <a href="{{ route('register') }}" class="text-purple-600 font-semibold hover:text-purple-700">Sign up free</a>
         </p>
     </form>
-
     <script>
-    function togglePw() {
-        const input = document.getElementById('password');
-        input.type = input.type === 'password' ? 'text' : 'password';
-    }
+        function togglePw() {
+            const input = document.getElementById('password');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            // Remove old errors
+            document.querySelectorAll('.custom-error').forEach(el => el.remove());
+
+            let valid = true;
+
+            if (!email) {
+                showFieldError('email', 'Email address is required.');
+                valid = false;
+            } else if (!emailRegex.test(email)) {
+                showFieldError('email', 'Please enter a valid email address.');
+                valid = false;
+            }
+
+            if (!password) {
+                showFieldError('password', 'Password is required.');
+                valid = false;
+            } else if (password.length < 8) {
+                showFieldError('password', 'Password must be at least 8 characters.');
+                valid = false;
+            }
+
+            if (!valid) e.preventDefault();
+        });
+
+        function showFieldError(fieldId, message) {
+            const field = document.getElementById(fieldId);
+            const err = document.createElement('p');
+            err.className = 'custom-error text-red-500 text-xs mt-1 flex items-center gap-1';
+            err.innerHTML = `⚠ ${message}`;
+            field.closest('div').appendChild(err);
+            field.classList.add('border-red-400', 'bg-red-50');
+        }
     </script>
 </x-guest-layout>
