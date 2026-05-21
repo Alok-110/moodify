@@ -8,7 +8,7 @@ use App\Models\Playlist;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-// Landing
+
 Route::get('/', function () {
     return view('landing');
 });
@@ -48,16 +48,16 @@ Route::get('/dashboard', function () {
 // Auth middleware group
 Route::middleware('auth')->group(function () {
 
-    // Profile
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
 Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Discover
+
     Route::get('/discover', [DiscoverController::class, 'index']);
 
-    // Playlists — /list MUST be before /{playlist}
+ 
     Route::get('/playlists', [PlaylistController::class, 'index']);
     Route::post('/playlists', [PlaylistController::class, 'store']);
     Route::get('/playlists/list', function () {
@@ -72,7 +72,7 @@ Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.
     Route::post('/playlists/{playlist}/songs', [PlaylistController::class, 'addSong']);
     Route::delete('/playlists/{playlist}/songs/{song}', [PlaylistController::class, 'removeSong']);
 
-    // Record play history
+
     Route::post('/play/{song}', function (App\Models\Song $song) {
         PlayHistory::updateOrCreate(
             ['user_id' => Auth::id(), 'song_id' => $song->id],

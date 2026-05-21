@@ -3,14 +3,17 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-8">
         <div>
-            <h1 class="text-2xl font-extrabold text-gray-900">Good evening, {{ Auth::user()->name }}</h1>
+            <h1 class="text-2xl font-extrabold text-gray-900">
+                {{ now()->hour < 12 ? 'Good morning' : (now()->hour < 17 ? 'Good afternoon' : 'Good evening') }},
+                {{ explode(' ', Auth::user()->name)[0] }} 👋
+            </h1>
             <p class="text-sm text-gray-400 mt-0.5">What do you want to listen to today?</p>
         </div>
         <!-- Search bar — redirects to Discover -->
         <form method="GET" action="/discover">
             <div class="relative">
                 <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input type="text" name="search" placeholder="Search songs, artists..."
                     class="pl-9 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 w-64 transition">
@@ -23,14 +26,14 @@
         <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Pick your mood</h2>
         <div class="grid grid-cols-5 gap-3">
             @foreach([
-                ['label' => 'Happy',     'slug' => 'happy',     'bg' => 'bg-amber-100',  'text' => 'text-amber-700',  'border' => 'border-amber-200',  'dot' => 'bg-amber-400'],
-                ['label' => 'Sad',       'slug' => 'sad',       'bg' => 'bg-blue-100',   'text' => 'text-blue-700',   'border' => 'border-blue-200',   'dot' => 'bg-blue-400'],
-                ['label' => 'Energetic', 'slug' => 'energetic', 'bg' => 'bg-red-100',    'text' => 'text-red-700',    'border' => 'border-red-200',    'dot' => 'bg-red-400'],
-                ['label' => 'Chill',     'slug' => 'chill',     'bg' => 'bg-teal-100',   'text' => 'text-teal-700',   'border' => 'border-teal-200',   'dot' => 'bg-teal-400'],
-                ['label' => 'Focused',   'slug' => 'focused',   'bg' => 'bg-purple-100', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'dot' => 'bg-purple-400'],
+            ['label' => 'Happy', 'slug' => 'happy', 'bg' => 'bg-amber-100', 'text' => 'text-amber-700', 'border' => 'border-amber-200', 'dot' => 'bg-amber-400'],
+            ['label' => 'Sad', 'slug' => 'sad', 'bg' => 'bg-blue-100', 'text' => 'text-blue-700', 'border' => 'border-blue-200', 'dot' => 'bg-blue-400'],
+            ['label' => 'Energetic', 'slug' => 'energetic', 'bg' => 'bg-red-100', 'text' => 'text-red-700', 'border' => 'border-red-200', 'dot' => 'bg-red-400'],
+            ['label' => 'Chill', 'slug' => 'chill', 'bg' => 'bg-teal-100', 'text' => 'text-teal-700', 'border' => 'border-teal-200', 'dot' => 'bg-teal-400'],
+            ['label' => 'Focused', 'slug' => 'focused', 'bg' => 'bg-purple-100', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'dot' => 'bg-purple-400'],
             ] as $mood)
             <a href="/mood?mood={{ $mood['slug'] }}"
-               class="{{ $mood['bg'] }} {{ $mood['text'] }} border {{ $mood['border'] }} rounded-2xl px-4 py-4 text-sm font-bold hover:scale-105 active:scale-95 transition-transform text-left block">
+                class="{{ $mood['bg'] }} {{ $mood['text'] }} border {{ $mood['border'] }} rounded-2xl px-4 py-4 text-sm font-bold hover:scale-105 active:scale-95 transition-transform text-left block">
                 <div class="w-2 h-2 rounded-full {{ $mood['dot'] }} mb-3"></div>
                 {{ $mood['label'] }}
             </a>
@@ -49,25 +52,25 @@
         <div class="grid grid-cols-4 gap-4">
             @foreach($recentSongs as $song)
             <div class="bg-white border border-gray-100 rounded-2xl p-3 hover:border-gray-200 hover:shadow-sm transition cursor-pointer group"
-                 onclick="playSong('{{ $song->preview_url }}', '{{ addslashes($song->title) }}', '{{ addslashes($song->artist) }}', '{{ $song->artwork_url }}')">
+                onclick="playSong('{{ $song->preview_url }}', '{{ addslashes($song->title) }}', '{{ addslashes($song->artist) }}', '{{ $song->artwork_url }}')">
 
                 <!-- Album Art -->
                 <div class="w-full aspect-square rounded-xl mb-3 relative overflow-hidden bg-gray-100">
                     @if($song->artwork_url)
-                        <img src="{{ $song->artwork_url }}" alt="{{ $song->title }}"
-                             class="w-full h-full object-cover">
+                    <img src="{{ $song->artwork_url }}" alt="{{ $song->title }}"
+                        class="w-full h-full object-cover">
                     @else
-                        <div class="w-full h-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
-                            <svg class="w-8 h-8 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
-                            </svg>
-                        </div>
+                    <div class="w-full h-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                        <svg class="w-8 h-8 text-white opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                        </svg>
+                    </div>
                     @endif
                     <!-- Hover play overlay -->
                     <div class="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                         <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg">
                             <svg class="w-4 h-4 text-gray-900 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z"/>
+                                <path d="M8 5v14l11-7z" />
                             </svg>
                         </div>
                     </div>
@@ -130,11 +133,17 @@
             <div class="flex items-center gap-2 flex-shrink-0">
                 <button onclick="togglePlay()"
                     class="w-10 h-10 bg-purple-600 hover:bg-purple-700 rounded-full flex items-center justify-center transition">
-                    <svg id="play-icon" class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                    <svg id="pause-icon" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    <svg id="play-icon" class="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                    <svg id="pause-icon" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                    </svg>
                 </button>
                 <button onclick="stopPlayer()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
         </div>
@@ -145,11 +154,14 @@
         let progressInterval;
 
         function formatTime(s) {
-            return Math.floor(s/60) + ':' + String(Math.floor(s%60)).padStart(2,'0');
+            return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
         }
 
         function playSong(url, title, artist, art) {
-            if (!url) { alert('No preview available for this song.'); return; }
+            if (!url) {
+                alert('No preview available for this song.');
+                return;
+            }
             audio.pause();
             audio.src = url;
             audio.play();
@@ -175,12 +187,20 @@
         }
 
         function togglePlay() {
-            if (audio.paused) { audio.play(); document.getElementById('play-icon').classList.add('hidden'); document.getElementById('pause-icon').classList.remove('hidden'); }
-            else { audio.pause(); document.getElementById('play-icon').classList.remove('hidden'); document.getElementById('pause-icon').classList.add('hidden'); }
+            if (audio.paused) {
+                audio.play();
+                document.getElementById('play-icon').classList.add('hidden');
+                document.getElementById('pause-icon').classList.remove('hidden');
+            } else {
+                audio.pause();
+                document.getElementById('play-icon').classList.remove('hidden');
+                document.getElementById('pause-icon').classList.add('hidden');
+            }
         }
 
         function stopPlayer() {
-            audio.pause(); audio.src = '';
+            audio.pause();
+            audio.src = '';
             document.getElementById('player').classList.add('hidden');
             clearInterval(progressInterval);
         }
